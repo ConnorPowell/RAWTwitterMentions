@@ -1,25 +1,27 @@
-#!/usr/bin/python3
 import configparser, twitter, subprocess
 
 def email(mention):
 	username = mention.user.screen_name
 	tweet = mention.full_text
 
-	subject = "@" + username + " mentioned us on twitter"
+	subject = "@" + username + " just mentioned us on twitter"
 	message = "@" + username + ": " + tweet
 	recipient = config["mail"]["recipient"]
+	sender = "From: @" + mention.user.screen_name + " <twitter@radio.warwick.ac.uk>"	
 
-	try:
-		proc = subprocess.Popen(['mail', '-s', subject, recipient], stdin=subprocess.PIPE)
-	except e:
-		print(e)
-	process.communicate(message)
+	tweet = open("tweet", "w")
+	tweet.write(message)
+	tweet.close()
+	tweet = open("tweet", "r")
 
+	proc = subprocess.call(['mail', '-s', subject, '-a', sender, recipient], stdin=tweet)
+	tweet.close()
+	
 try:
 	latest = open("latest", "r")
-except e:
+except Exception:
 	latest = open("latest", "w")
-	latest.write(0)
+	latest.write("0")
 	latest.close()
 	latest = open("latest", "r")
 
@@ -48,5 +50,5 @@ for mention in mentions:
 		email(mention)
 
 latest = open("latest", "w")
-latest.write(max_number)
+latest.write(str(max_number))
 latest.close()
