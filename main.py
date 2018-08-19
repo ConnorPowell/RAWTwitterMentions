@@ -11,8 +11,8 @@ def email(mention):
 
 	try:
 		proc = subprocess.Popen(['mail', '-s', subject, recipient], stdin=subprocess.PIPE)
-	except Exception, error:
-		print(error)
+	except e:
+		print(e)
 	process.communicate(message)
 
 try:
