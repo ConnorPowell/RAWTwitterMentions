@@ -43,7 +43,7 @@ for mention in mentions:
 	if mention.id <= number:
 		break
 	else:
-		if(mention.id > max_number)
+		if mention.id > max_number:
 			max_number = mention.id
 		email(mention)
 
