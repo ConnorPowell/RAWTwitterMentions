@@ -1,0 +1,3 @@
+# RAW1251AM Twitter Mentions
+
+This python script checks the Twitter handle for any mentions. Any mentions that are found are emailed to the appropriate email address in the config.
