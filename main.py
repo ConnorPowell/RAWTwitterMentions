@@ -1,35 +1,33 @@
-import configparser, twitter, subprocess
+import configparser, twitter, subprocess, psycopg2, time
 
-def email(mention):
+def email(mention, cursor):
 	username = mention.user.screen_name
 	tweet = mention.full_text
 
 	subject = "@" + username + " just mentioned us on twitter"
 	message = "@" + username + ": " + tweet
-	recipient = config["mail"]["recipient"]
-	sender = "From: @" + mention.user.screen_name + " <twitter@radio.warwick.ac.uk>"	
+	sender = mention.user.name + " <notify@twitter.com>"
+	timestamp = int(time.time())
 
-	tweet = open("tweet", "w")
-	tweet.write(message)
-	tweet.close()
-	tweet = open("tweet", "r")
-
-	proc = subprocess.call(['mail', '-s', subject, '-a', sender, recipient], stdin=tweet)
-	tweet.close()
+	cursor.execute("INSERT INTO email (new_flag, datetime, sender, subject, body) VALUES (%s, %s, %s, %s, %s)",
+		("f", timestamp, sender, subject, message))
+	print("Inserted", subject, message, "", sep="\n")
 	
-try:
-	latest = open("latest", "r")
-except Exception:
-	latest = open("latest", "w")
-	latest.write("0")
-	latest.close()
-	latest = open("latest", "r")
-
+latest = open("latest", "r")
 number = int(latest.read())
 latest.close()
 
 config = configparser.ConfigParser()
 config.read("twitter.config")
+
+db_host = config["database"]["host"]
+db_port = config["database"]["port"]
+db_name = config["database"]["name"]
+db_user = config["database"]["user"]
+db_password = config["database"]["password"]
+
+connection = psycopg2.connect(host=db_host, port=db_port, dbname=db_name, user=db_user, password=db_password)
+cursor = connection.cursor()
 
 consumer_key = config["twitter"]["CONSUMER_KEY"]
 consumer_secret = config["twitter"]["CONSUMER_SECRET"]
@@ -47,7 +45,11 @@ for mention in mentions:
 	else:
 		if mention.id > max_number:
 			max_number = mention.id
-		email(mention)
+		email(mention, cursor)
+
+connection.commit()
+cursor.close()
+connection.close()
 
 latest = open("latest", "w")
 latest.write(str(max_number))
