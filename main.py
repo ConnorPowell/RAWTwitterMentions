@@ -10,7 +10,7 @@ def email(mention, cursor):
 	timestamp = int(time.time())
 
 	cursor.execute("INSERT INTO email (new_flag, datetime, sender, subject, body) VALUES (%s, %s, %s, %s, %s)",
-		("f", timestamp, sender, subject, message))
+		("t", timestamp, sender, subject, message))
 	print("Inserted", subject, message, "", sep="\n")
 	
 latest = open("latest", "r")
